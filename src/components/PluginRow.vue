@@ -57,8 +57,11 @@ function formatKey(key: string): string {
 </script>
 
 <template>
-  <div class="flex flex-col gap-2 rounded-lg border border-default p-4">
+  <section
+    class="flex flex-col gap-2 rounded-xl border border-default bg-elevated p-5 shadow-xs"
+  >
     <div class="flex items-center gap-2">
+      <UIcon :name="plugin.icon" class="size-5 shrink-0" />
       <span class="grow font-medium">{{ plugin.label }}</span>
 
       <UPopover v-if="hasOptions">
@@ -109,5 +112,5 @@ function formatKey(key: string): string {
         <span>{{ w }}</span>
       </li>
     </ul>
-  </div>
+  </section>
 </template>

@@ -9,7 +9,7 @@ const navItems = [
 
 <template>
   <UApp>
-    <div class="flex min-h-svh flex-col">
+    <div class="flex min-h-svh flex-col bg-default text-default">
       <nav class="border-b border-default">
         <div class="mx-auto flex max-w-6xl items-center px-4 py-3">
           <ul class="mx-auto flex items-center gap-6">

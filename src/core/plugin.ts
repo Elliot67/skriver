@@ -9,6 +9,7 @@ export interface RenderResult {
 export interface ClientPlugin<TOptions extends object = object> {
   id: string;
   label: string;
+  icon: string;
   mimeType: string;
   defaultOptions: TOptions;
   render(ast: Root, options: TOptions): RenderResult;

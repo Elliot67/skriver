@@ -13,15 +13,12 @@ export default defineConfig({
     ui({
       colorMode: true,
       ui: {
-        input: {
-          variants: {
-            variant: { outline: 'bg-[var(--input)] ring-[var(--border)]' },
-          },
-        },
-        textarea: {
-          variants: {
-            variant: { outline: 'bg-[var(--input)] ring-[var(--border)]' },
-          },
+        colors: {
+          primary: 'purple',
+          secondary: 'slate',
+          success: 'sky',
+          warning: 'amber',
+          error: 'red',
         },
       },
     }),

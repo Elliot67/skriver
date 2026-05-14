@@ -6,6 +6,7 @@ import { readPasteEvent, writeForPlugin, writeManyViaCopyEvent } from '../clipbo
 const plugin: ClientPlugin = {
   id: 'slack',
   label: 'Slack',
+  icon: 'i-lucide-slack',
   mimeType: 'slack/texty',
   defaultOptions: {},
   render: () => ({ output: '', warnings: [] }),
