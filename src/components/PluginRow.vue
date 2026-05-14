@@ -106,10 +106,24 @@ function formatKey(key: string): string {
       />
     </div>
 
-    <ul v-if="warnings.length > 0" class="flex flex-col gap-1 text-sm text-warning">
-      <li v-for="(w, i) in warnings" :key="i" class="flex items-start gap-1">
-        <UIcon name="i-lucide-triangle-alert" class="mt-0.5 shrink-0" />
-        <span>{{ w }}</span>
+    <ul v-if="warnings.length > 0" class="flex flex-col gap-1 text-sm">
+      <li
+        v-for="(w, i) in warnings"
+        :key="i"
+        :class="w.severity === 'error' ? 'text-error' : 'text-warning'"
+        class="flex items-center gap-1.5"
+      >
+        <UIcon
+          :name="w.severity === 'error' ? 'i-lucide-circle-x' : 'i-lucide-triangle-alert'"
+          class="shrink-0"
+        />
+        <span>{{ w.title }}</span>
+        <UTooltip :text="w.description" :delay-duration="100">
+          <UIcon
+            name="i-lucide-info"
+            class="shrink-0 opacity-60 hover:opacity-100 cursor-help"
+          />
+        </UTooltip>
       </li>
     </ul>
   </section>

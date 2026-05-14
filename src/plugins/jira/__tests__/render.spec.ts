@@ -1,7 +1,14 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { parse } from '@/core/markdown';
-import { renderJira } from '../render';
+import { JIRA_WARNINGS, renderJira } from '../render';
+
+function stubUuids(values: string[]): void {
+  let i = 0;
+  vi.spyOn(crypto, 'randomUUID').mockImplementation(
+    () => (values[i++] ?? `extra-${i}`) as ReturnType<typeof crypto.randomUUID>,
+  );
+}
 
 function run(md: string) {
   return renderJira(parse(md), {});
@@ -27,10 +34,10 @@ const PM_TH =
   '<th data-prosemirror-content-type="node" data-prosemirror-node-name="tableHeader" data-prosemirror-node-block="true">';
 const PM_TD =
   '<td data-prosemirror-content-type="node" data-prosemirror-node-name="tableCell" data-prosemirror-node-block="true">';
-const PM_TASKLIST =
-  '<div data-node-type="actionList" style="list-style: none; padding-left: 0" data-prosemirror-content-type="node" data-prosemirror-node-name="taskList" data-prosemirror-node-block="true">';
-const taskItem = (state: 'TODO' | 'DONE') =>
-  `<div data-task-state="${state}" data-prosemirror-content-type="node" data-prosemirror-node-name="taskItem" data-prosemirror-node-block="true">`;
+const taskList = (id: string) =>
+  `<div data-node-type="actionList" data-task-list-local-id="${id}" style="list-style: none; padding-left: 0" data-prosemirror-content-type="node" data-prosemirror-node-name="taskList" data-prosemirror-node-block="true">`;
+const taskItem = (id: string, state: 'TODO' | 'DONE') =>
+  `<div data-task-local-id="${id}" data-task-state="${state}" data-prosemirror-content-type="node" data-prosemirror-node-name="taskItem" data-prosemirror-node-block="true">`;
 
 const PM_STRONG =
   '<strong data-prosemirror-content-type="mark" data-prosemirror-mark-name="strong">';
@@ -126,13 +133,21 @@ describe('lists', () => {
 });
 
 describe('task lists (GFM)', () => {
-  it('emits actionList wrapper with TODO/DONE states and no IDs', () => {
-    const { output } = run('- [ ] task one\n- [x] task two');
-    expect(output).toBe(
-      `${PM_TASKLIST}${taskItem('TODO')}task one</div>${taskItem('DONE')}task two</div></div>`,
+  beforeEach(() => {
+    stubUuids(['list-uuid', 'item-uuid-0', 'item-uuid-1']);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('emits actionList wrapper with UUIDs and TODO/DONE states', () => {
+    expect(run('- [ ] task one\n- [x] task two').output).toBe(
+      `${taskList('list-uuid')}` +
+        `${taskItem('item-uuid-0', 'TODO')}task one</div>` +
+        `${taskItem('item-uuid-1', 'DONE')}task two</div>` +
+        `</div>`,
     );
-    expect(output).not.toContain('data-task-list-local-id');
-    expect(output).not.toContain('data-task-local-id');
   });
 
   it('falls back to a regular list and warns when items are mixed', () => {
@@ -140,9 +155,7 @@ describe('task lists (GFM)', () => {
     expect(output).toBe(
       `${PM_UL}${PM_LI}${PM_P}task</p></li>${PM_LI}${PM_P}regular</p></li></ul>`,
     );
-    expect(warnings).toContain(
-      'Mixed task and non-task items in a list — rendered as a regular list.',
-    );
+    expect(warnings).toContain(JIRA_WARNINGS.MIXED_TASK_LIST);
   });
 });
 
@@ -150,6 +163,12 @@ describe('blockquote', () => {
   it('wraps each child paragraph in its own <p>', () => {
     expect(run('> line one\n>\n> line two').output).toBe(
       `${PM_BLOCKQUOTE}${PM_P}line one</p>${PM_P}line two</p></blockquote>`,
+    );
+  });
+
+  it('splits a multi-line blockquote at soft breaks into separate <p>', () => {
+    expect(run('> First line\n> Second line\n> Third line').output).toBe(
+      `${PM_BLOCKQUOTE}${PM_P}First line</p>${PM_P}Second line</p>${PM_P}Third line</p></blockquote>`,
     );
   });
 });

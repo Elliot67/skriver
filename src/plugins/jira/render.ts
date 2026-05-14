@@ -17,14 +17,35 @@ import type {
   Text,
 } from 'mdast';
 
+import { splitInlineByNewlines } from '@/core/inline-split';
 import { mdastToPlainText } from '@/core/plain-text';
-import type { RenderResult } from '@/core/plugin';
+import type { RenderResult, Warning } from '@/core/plugin';
 
 export type JiraOptions = Record<string, never>;
 
+export const JIRA_WARNINGS = {
+  MIXED_TASK_LIST: {
+    title: 'Mixed task list',
+    description:
+      'Lists that mix checkboxed and plain items are rendered as a regular bullet list — Jira does not support per-item task state in mixed lists.',
+    severity: 'warn',
+  },
+  NESTED_TASK_CONTENT: {
+    title: 'Nested task content dropped',
+    description:
+      'Only the first line of a task item is rendered. Nested lists or paragraphs inside a checkbox are not supported.',
+    severity: 'warn',
+  },
+  UNSUPPORTED: {
+    title: 'Unsupported markdown',
+    description: 'Some markdown features are not supported and have been skipped.',
+    severity: 'warn',
+  },
+} as const satisfies Record<string, Warning>;
+
 interface Ctx {
   out: string[];
-  warnings: Set<string>;
+  warnings: Set<Warning>;
 }
 
 // ProseMirror block-node open tags. Attribute order intentionally matches
@@ -50,8 +71,17 @@ const OPEN_TD =
   '<td data-prosemirror-content-type="node" data-prosemirror-node-name="tableCell" data-prosemirror-node-block="true">';
 const HR =
   '<hr data-prosemirror-content-type="node" data-prosemirror-node-name="rule" data-prosemirror-node-block="true">';
-const OPEN_TASK_LIST =
-  '<div data-node-type="actionList" style="list-style: none; padding-left: 0" data-prosemirror-content-type="node" data-prosemirror-node-name="taskList" data-prosemirror-node-block="true">';
+
+// Jira silently downgrades pasted task items to `TODO` unless both the list
+// wrapper and every item carry a fresh UUID — `data-task-state="DONE"` alone
+// is ignored. Generate with the Web Crypto API; tests stub crypto.randomUUID.
+function openTaskList(id: string): string {
+  return `<div data-node-type="actionList" data-task-list-local-id="${id}" style="list-style: none; padding-left: 0" data-prosemirror-content-type="node" data-prosemirror-node-name="taskList" data-prosemirror-node-block="true">`;
+}
+
+function openTaskItem(id: string, state: 'TODO' | 'DONE'): string {
+  return `<div data-task-local-id="${id}" data-task-state="${state}" data-prosemirror-content-type="node" data-prosemirror-node-name="taskItem" data-prosemirror-node-block="true">`;
+}
 
 const OPEN_STRONG =
   '<strong data-prosemirror-content-type="mark" data-prosemirror-mark-name="strong">';
@@ -130,7 +160,7 @@ function renderBlock(ctx: Ctx, node: RootContent): void {
       ctx.out.push((node as { value: string }).value);
       break;
     default:
-      ctx.warnings.add(`Unsupported block: ${node.type}`);
+      ctx.warnings.add(JIRA_WARNINGS.UNSUPPORTED);
   }
 }
 
@@ -140,9 +170,7 @@ function renderList(ctx: Ctx, node: List): void {
     return;
   }
   if (node.children.some(isCheckedItem)) {
-    ctx.warnings.add(
-      'Mixed task and non-task items in a list — rendered as a regular list.',
-    );
+    ctx.warnings.add(JIRA_WARNINGS.MIXED_TASK_LIST);
   }
   const open = node.ordered ? OPEN_OL : OPEN_UL;
   const close = node.ordered ? '</ol>' : '</ul>';
@@ -172,7 +200,7 @@ function renderListItem(ctx: Ctx, item: ListItem): void {
 }
 
 function renderTaskList(ctx: Ctx, node: List): void {
-  ctx.out.push(OPEN_TASK_LIST);
+  ctx.out.push(openTaskList(crypto.randomUUID()));
   for (const item of node.children) {
     renderTaskItem(ctx, item);
   }
@@ -181,17 +209,13 @@ function renderTaskList(ctx: Ctx, node: List): void {
 
 function renderTaskItem(ctx: Ctx, item: ListItem): void {
   const state = item.checked ? 'DONE' : 'TODO';
-  ctx.out.push(
-    `<div data-task-state="${state}" data-prosemirror-content-type="node" data-prosemirror-node-name="taskItem" data-prosemirror-node-block="true">`,
-  );
+  ctx.out.push(openTaskItem(crypto.randomUUID(), state));
   const first = item.children[0];
   if (first && first.type === 'paragraph') {
     renderInline(ctx, (first as Paragraph).children);
   }
   if (item.children.length > 1) {
-    ctx.warnings.add(
-      'Nested content inside a task item is not supported — only the first line is rendered.',
-    );
+    ctx.warnings.add(JIRA_WARNINGS.NESTED_TASK_CONTENT);
   }
   ctx.out.push('</div>');
 }
@@ -199,7 +223,15 @@ function renderTaskItem(ctx: Ctx, item: ListItem): void {
 function renderBlockquote(ctx: Ctx, node: Blockquote): void {
   ctx.out.push(OPEN_BLOCKQUOTE);
   for (const child of node.children) {
-    renderBlock(ctx, child);
+    if (child.type === 'paragraph') {
+      for (const line of splitInlineByNewlines((child as Paragraph).children)) {
+        ctx.out.push(OPEN_PARAGRAPH);
+        renderInline(ctx, line);
+        ctx.out.push('</p>');
+      }
+    } else {
+      renderBlock(ctx, child);
+    }
   }
   ctx.out.push('</blockquote>');
 }
@@ -289,7 +321,7 @@ function renderInline(ctx: Ctx, nodes: PhrasingContent[]): void {
         ctx.out.push((n as { value: string }).value);
         break;
       default:
-        ctx.warnings.add(`Unsupported inline: ${n.type}`);
+        ctx.warnings.add(JIRA_WARNINGS.UNSUPPORTED);
     }
   }
 }

@@ -15,13 +15,47 @@ import type {
   Text,
 } from 'mdast';
 
-import type { RenderResult } from '@/core/plugin';
-import { splitTextWithEmoji } from './emoji';
+import type { RenderResult, Warning } from '@/core/plugin';
 import { deltaToMrkdwn } from './mrkdwn';
 
-export interface SlackOptions {
-  detectEmoji: boolean;
-}
+export const SLACK_WARNINGS = {
+  HTML: {
+    title: 'Raw HTML dropped',
+    description:
+      'HTML in the source is rendered as plain text — Slack does not parse HTML in messages.',
+    severity: 'warn',
+  },
+  HEADING_DEPTH: {
+    title: 'Heading depth clamped',
+    description:
+      'Slack supports headings up to depth 3. Deeper headings are rendered at depth 3.',
+    severity: 'warn',
+  },
+  TABLES: {
+    title: 'Tables not supported',
+    description:
+      'Tables are flattened to a plain-text code block. Column alignment is kept while each row fits in 80 characters.',
+    severity: 'warn',
+  },
+  IMAGES: {
+    title: 'Images not supported',
+    description: 'Inline images are rendered as their alt text.',
+    severity: 'warn',
+  },
+  TASK_LIST: {
+    title: 'Checklists not supported',
+    description:
+      'Task list items are rendered as bullets prefixed with ☐ (unchecked) or ✓ (checked).',
+    severity: 'warn',
+  },
+  UNSUPPORTED: {
+    title: 'Unsupported markdown',
+    description: 'Some markdown features are not supported and have been skipped.',
+    severity: 'warn',
+  },
+} as const satisfies Record<string, Warning>;
+
+export type SlackOptions = Record<string, never>;
 
 type Insert = string | { slackemoji: { text: string } };
 
@@ -40,13 +74,13 @@ interface Marks {
 
 interface Ctx {
   ops: SlackOp[];
-  warnings: Set<string>;
-  options: SlackOptions;
+  warnings: Set<Warning>;
   blockquoteMode: boolean;
 }
 
-export function renderSlack(ast: Root, options: SlackOptions): RenderResult {
-  const ctx: Ctx = { ops: [], warnings: new Set(), options, blockquoteMode: false };
+export function renderSlack(ast: Root, _options: SlackOptions): RenderResult {
+  void _options;
+  const ctx: Ctx = { ops: [], warnings: new Set(), blockquoteMode: false };
   const blocks = ast.children;
   blocks.forEach((block, i) => {
     renderBlock(ctx, block);
@@ -88,23 +122,26 @@ function renderBlock(ctx: Ctx, node: RootContent): void {
       renderTable(ctx, node as Table);
       break;
     case 'html':
-      ctx.warnings.add('Raw HTML is not supported; emitted as plain text.');
+      ctx.warnings.add(SLACK_WARNINGS.HTML);
       appendInsert(ctx, (node as { value: string }).value, undefined);
       pushLine(ctx);
       break;
     default:
-      ctx.warnings.add(`Unsupported block: ${node.type}`);
+      ctx.warnings.add(SLACK_WARNINGS.UNSUPPORTED);
   }
 }
 
 function renderHeading(ctx: Ctx, node: Heading): void {
   renderInline(ctx, node.children, {});
   const level = Math.min(node.depth, 3);
-  if (node.depth > 3) ctx.warnings.add(`Heading depth ${node.depth} clamped to 3.`);
+  if (node.depth > 3) ctx.warnings.add(SLACK_WARNINGS.HEADING_DEPTH);
   pushLine(ctx, { header: level });
 }
 
 function renderList(ctx: Ctx, node: List, depth: number): void {
+  if (node.children.some((item) => typeof item.checked === 'boolean')) {
+    ctx.warnings.add(SLACK_WARNINGS.TASK_LIST);
+  }
   const ordered = !!node.ordered;
   for (const item of node.children) {
     renderListItem(ctx, item, ordered, depth);
@@ -113,10 +150,15 @@ function renderList(ctx: Ctx, node: List, depth: number): void {
 
 function renderListItem(ctx: Ctx, item: ListItem, ordered: boolean, depth: number): void {
   let emittedLine = false;
+  let prefixed = false;
   for (const child of item.children) {
     if (child.type === 'list') {
       renderList(ctx, child as List, depth + 1);
     } else if (child.type === 'paragraph') {
+      if (!prefixed && typeof item.checked === 'boolean') {
+        pushText(ctx, item.checked ? '✓ ' : '☐ ', {});
+        prefixed = true;
+      }
       renderInline(ctx, (child as Paragraph).children, {});
       const attrs: Record<string, unknown> = { list: ordered ? 'ordered' : 'bullet' };
       if (depth > 0) attrs.indent = depth;
@@ -162,7 +204,7 @@ function renderCode(ctx: Ctx, node: Code): void {
 const TABLE_ALIGN_MAX_WIDTH = 80;
 
 function renderTable(ctx: Ctx, node: Table): void {
-  ctx.warnings.add('Tables are flattened to a code block.');
+  ctx.warnings.add(SLACK_WARNINGS.TABLES);
   const rows = node.children.map((row) =>
     row.children.map((cell) => inlineToPlainText(cell.children)),
   );
@@ -245,17 +287,17 @@ function renderInline(ctx: Ctx, nodes: PhrasingContent[], marks: Marks): void {
         }
         break;
       case 'image': {
-        ctx.warnings.add('Images are not supported; emitted as alt text.');
+        ctx.warnings.add(SLACK_WARNINGS.IMAGES);
         const img = n as Image;
         pushText(ctx, img.alt || img.url, marks);
         break;
       }
       case 'html':
-        ctx.warnings.add('Inline HTML is not supported; emitted as plain text.');
+        ctx.warnings.add(SLACK_WARNINGS.HTML);
         pushText(ctx, (n as { value: string }).value, marks);
         break;
       default:
-        ctx.warnings.add(`Unsupported inline: ${n.type}`);
+        ctx.warnings.add(SLACK_WARNINGS.UNSUPPORTED);
     }
   }
 }
@@ -271,19 +313,7 @@ function pushText(ctx: Ctx, text: string, marks: Marks): void {
     }
     return;
   }
-  const attributes = marksToAttrs(marks);
-  const detect = ctx.options.detectEmoji && !marks.code;
-  if (!detect) {
-    appendInsert(ctx, text, attributes);
-    return;
-  }
-  for (const seg of splitTextWithEmoji(text)) {
-    if (seg.kind === 'text') {
-      appendInsert(ctx, seg.value, attributes);
-    } else {
-      ctx.ops.push({ insert: { slackemoji: { text: seg.value } } });
-    }
-  }
+  appendInsert(ctx, text, marksToAttrs(marks));
 }
 
 function appendInsert(

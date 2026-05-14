@@ -2,12 +2,13 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 
 import { plugins, type PluginId } from '@/core/plugin-registry';
+import type { Warning } from '@/core/plugin';
 
 const STORAGE_KEY_MARKDOWN = 'skriver:markdown';
 const STORAGE_KEY_OPTIONS = 'skriver:pluginOptions';
 
 type PluginOptionsMap = Record<PluginId, Record<string, unknown>>;
-type WarningsMap = Record<PluginId, string[]>;
+type WarningsMap = Record<PluginId, Warning[]>;
 
 function defaultPluginOptions(): PluginOptionsMap {
   const out = {} as PluginOptionsMap;
@@ -81,7 +82,7 @@ export const useEditorStore = defineStore('editor', () => {
     pluginOptions.value[id] = { ...pluginOptions.value[id], [key]: value };
   }
 
-  function setLastWarnings(id: PluginId, warnings: string[]): void {
+  function setLastWarnings(id: PluginId, warnings: Warning[]): void {
     lastWarnings.value[id] = warnings;
   }
 

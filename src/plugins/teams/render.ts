@@ -17,14 +17,29 @@ import type {
   Text,
 } from 'mdast';
 
+import { splitInlineByNewlines } from '@/core/inline-split';
 import { mdastToPlainText } from '@/core/plain-text';
-import type { RenderResult } from '@/core/plugin';
+import type { RenderResult, Warning } from '@/core/plugin';
 
 export type TeamsOptions = Record<string, never>;
 
+export const TEAMS_WARNINGS = {
+  TASK_LIST: {
+    title: 'Checklists not supported',
+    description:
+      'Task list items are rendered as bullets prefixed with ☐ (unchecked) or ✓ (checked).',
+    severity: 'warn',
+  },
+  UNSUPPORTED: {
+    title: 'Unsupported markdown',
+    description: 'Some markdown features are not supported and have been skipped.',
+    severity: 'warn',
+  },
+} as const satisfies Record<string, Warning>;
+
 interface Ctx {
   out: string[];
-  warnings: Set<string>;
+  warnings: Set<Warning>;
 }
 
 export function renderTeams(ast: Root, _options: TeamsOptions): RenderResult {
@@ -74,11 +89,14 @@ function renderBlock(ctx: Ctx, node: RootContent): void {
       ctx.out.push((node as { value: string }).value);
       break;
     default:
-      ctx.warnings.add(`Unsupported block: ${node.type}`);
+      ctx.warnings.add(TEAMS_WARNINGS.UNSUPPORTED);
   }
 }
 
 function renderList(ctx: Ctx, node: List): void {
+  if (node.children.some((item) => typeof item.checked === 'boolean')) {
+    ctx.warnings.add(TEAMS_WARNINGS.TASK_LIST);
+  }
   const tag = node.ordered ? 'ol' : 'ul';
   ctx.out.push(`<${tag}>`);
   for (const item of node.children) {
@@ -94,6 +112,9 @@ function renderListItem(ctx: Ctx, item: ListItem): void {
       // Inline the first paragraph's content directly inside <li> so simple lists
       // don't get wrapped in <p>; wrap later paragraphs in <p>.
       if (i === 0) {
+        if (typeof item.checked === 'boolean') {
+          ctx.out.push(item.checked ? '✓ ' : '☐ ');
+        }
         renderInline(ctx, (child as Paragraph).children);
       } else {
         ctx.out.push('<p>');
@@ -110,7 +131,15 @@ function renderListItem(ctx: Ctx, item: ListItem): void {
 function renderBlockquote(ctx: Ctx, node: Blockquote): void {
   ctx.out.push('<blockquote>');
   for (const child of node.children) {
-    renderBlock(ctx, child);
+    if (child.type === 'paragraph') {
+      for (const line of splitInlineByNewlines((child as Paragraph).children)) {
+        ctx.out.push('<p>');
+        renderInline(ctx, line);
+        ctx.out.push('</p>');
+      }
+    } else {
+      renderBlock(ctx, child);
+    }
   }
   ctx.out.push('</blockquote>');
 }
@@ -208,7 +237,7 @@ function renderInline(ctx: Ctx, nodes: PhrasingContent[]): void {
         ctx.out.push((n as { value: string }).value);
         break;
       default:
-        ctx.warnings.add(`Unsupported inline: ${n.type}`);
+        ctx.warnings.add(TEAMS_WARNINGS.UNSUPPORTED);
     }
   }
 }

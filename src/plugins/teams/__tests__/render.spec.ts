@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { parse } from '@/core/markdown';
-import { renderTeams } from '../render';
+import { renderTeams, TEAMS_WARNINGS } from '../render';
 
 function run(md: string) {
   const ast = parse(md);
@@ -82,9 +82,29 @@ describe('lists', () => {
   });
 });
 
+describe('task lists (GFM)', () => {
+  it('prefixes task items with ☐ / ✓ and warns', () => {
+    const { output, warnings } = run('- [ ] todo\n- [x] done');
+    expect(output).toBe('<ul><li>☐ todo</li><li>✓ done</li></ul>');
+    expect(warnings).toContain(TEAMS_WARNINGS.TASK_LIST);
+  });
+
+  it('leaves non-task siblings unprefixed in a mixed list and still warns', () => {
+    const { output, warnings } = run('- [ ] task\n- regular');
+    expect(output).toBe('<ul><li>☐ task</li><li>regular</li></ul>');
+    expect(warnings).toContain(TEAMS_WARNINGS.TASK_LIST);
+  });
+});
+
 describe('blockquote', () => {
   it('wraps content in <blockquote><p>', () => {
     expect(run('> quoted line').output).toBe('<blockquote><p>quoted line</p></blockquote>');
+  });
+
+  it('emits one <p> per line for a multi-line blockquote', () => {
+    expect(run('> First line\n> Second line\n> Third line').output).toBe(
+      '<blockquote><p>First line</p><p>Second line</p><p>Third line</p></blockquote>',
+    );
   });
 });
 

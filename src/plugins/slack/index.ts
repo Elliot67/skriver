@@ -6,7 +6,7 @@ export const slackPlugin: ClientPlugin<SlackOptions> = {
   label: 'Slack',
   icon: 'i-simple-icons:slack',
   mimeType: 'slack/texty',
-  defaultOptions: { detectEmoji: true },
+  defaultOptions: {},
   render: renderSlack,
 };
 
