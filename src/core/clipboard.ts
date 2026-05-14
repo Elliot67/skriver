@@ -1,5 +1,16 @@
 import type { ClientPlugin } from './plugin';
 
+export interface ClipboardEntry {
+  mimeType: string;
+  payload: string;
+}
+
+export interface PasteEntry {
+  mimeType: string;
+  payload: string;
+  binary: boolean;
+}
+
 export async function writeForPlugin(
   plugin: ClientPlugin,
   payload: string,
@@ -17,6 +28,36 @@ export function writeViaCopyEvent(
   mimeType: string,
   payload: string,
   plainText?: string,
+): Promise<void> {
+  return dispatchSyntheticCopy((clipboardData) => {
+    clipboardData.setData(mimeType, payload);
+    if (plainText !== undefined && mimeType !== 'text/plain') {
+      clipboardData.setData('text/plain', plainText);
+    }
+  });
+}
+
+export function writeManyViaCopyEvent(entries: ClipboardEntry[]): Promise<void> {
+  return dispatchSyntheticCopy((clipboardData) => {
+    for (const entry of entries) {
+      clipboardData.setData(entry.mimeType, entry.payload);
+    }
+  });
+}
+
+export function readPasteEvent(event: ClipboardEvent): PasteEntry[] {
+  const data = event.clipboardData;
+  if (!data) return [];
+  const entries: PasteEntry[] = [];
+  for (const type of data.types) {
+    const payload = data.getData(type);
+    entries.push({ mimeType: type, payload, binary: payload === '' });
+  }
+  return entries;
+}
+
+function dispatchSyntheticCopy(
+  applyData: (clipboardData: DataTransfer) => void,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const helper = document.createElement('textarea');
@@ -39,10 +80,7 @@ export function writeViaCopyEvent(
       handled = true;
       try {
         event.preventDefault();
-        event.clipboardData?.setData(mimeType, payload);
-        if (plainText !== undefined && mimeType !== 'text/plain') {
-          event.clipboardData?.setData('text/plain', plainText);
-        }
+        if (event.clipboardData) applyData(event.clipboardData);
       } catch (err) {
         copyError = err;
       }

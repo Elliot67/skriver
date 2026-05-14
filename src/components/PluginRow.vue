@@ -94,10 +94,11 @@ function formatKey(key: string): string {
       </UPopover>
 
       <UButton
-        :label="`Copy for ${plugin.label}`"
+        label="Copy"
         icon="i-lucide-clipboard"
         color="primary"
         :loading="copying"
+        :aria-label="`Copy for ${plugin.label}`"
         @click="copy"
       />
     </div>
