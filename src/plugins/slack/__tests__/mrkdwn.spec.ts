@@ -283,6 +283,58 @@ const tests: { name: string; input: { ops: SlackOp[] }; expected: string }[] = [
     input: { ops: [{ insert: 'First paragraph here.\n\nSecond paragraph here.' }] },
     expected: 'First paragraph here.\n\nSecond paragraph here.',
   },
+  {
+    name: 'paragraph followed by list',
+    input: {
+      ops: [
+        { insert: 'intro\n' },
+        { insert: 'item' },
+        { insert: '\n', attributes: { list: 'bullet' } },
+      ],
+    },
+    expected: 'intro\n- item',
+  },
+
+  // === HEADINGS ===
+  {
+    name: 'heading h1',
+    input: { ops: [{ insert: 'Title' }, { insert: '\n', attributes: { header: 1 } }] },
+    expected: '# Title',
+  },
+  {
+    name: 'heading h2',
+    input: { ops: [{ insert: 'Sub' }, { insert: '\n', attributes: { header: 2 } }] },
+    expected: '## Sub',
+  },
+
+  // === COUNTER RESET ===
+  {
+    name: 'resets ordered list numbering after an intervening paragraph',
+    input: {
+      ops: [
+        { insert: 'a' },
+        { insert: '\n', attributes: { list: 'ordered' } },
+        { insert: 'b' },
+        { insert: '\n', attributes: { list: 'ordered' } },
+        { insert: 'break\n' },
+        { insert: 'c' },
+        { insert: '\n', attributes: { list: 'ordered' } },
+      ],
+    },
+    expected: '1. a\n2. b\nbreak\n1. c',
+  },
+
+  // === BOLD AROUND A LINK ===
+  {
+    name: 'bold around a link',
+    input: {
+      ops: [
+        { insert: 'click', attributes: { bold: true, link: 'https://example.com' } },
+        { insert: '\n' },
+      ],
+    },
+    expected: '*[click](https://example.com)*',
+  },
 ];
 
 describe('deltaToMrkdwn', () => {

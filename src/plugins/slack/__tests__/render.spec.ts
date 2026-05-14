@@ -134,6 +134,26 @@ describe('lists', () => {
       { insert: '\n', attributes: { list: 'ordered' } },
     ]);
   });
+
+  it('preserves indent for three-level deep nesting', () => {
+    const { ops } = run('- a\n  - b\n    - c', { detectEmoji: false });
+    expect(ops).toEqual([
+      { insert: 'a' },
+      { insert: '\n', attributes: { list: 'bullet' } },
+      { insert: 'b' },
+      { insert: '\n', attributes: { list: 'bullet', indent: 1 } },
+      { insert: 'c' },
+      { insert: '\n', attributes: { list: 'bullet', indent: 2 } },
+    ]);
+  });
+
+  it('keeps inline marks on list item content', () => {
+    const { ops } = run('- **bold item**', { detectEmoji: false });
+    expect(ops).toEqual([
+      { insert: 'bold item', attributes: { bold: true } },
+      { insert: '\n', attributes: { list: 'bullet' } },
+    ]);
+  });
 });
 
 describe('blockquote', () => {
@@ -141,6 +161,16 @@ describe('blockquote', () => {
     const { ops } = run('> quoted line', { detectEmoji: false });
     expect(ops).toEqual([
       { insert: 'quoted line' },
+      { insert: '\n', attributes: { blockquote: true } },
+    ]);
+  });
+
+  it('attributes every line of a multi-line blockquote', () => {
+    const { ops } = run('> line one\n> line two', { detectEmoji: false });
+    expect(ops).toEqual([
+      { insert: 'line one' },
+      { insert: '\n', attributes: { blockquote: true } },
+      { insert: 'line two' },
       { insert: '\n', attributes: { blockquote: true } },
     ]);
   });

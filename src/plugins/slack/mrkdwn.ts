@@ -86,16 +86,15 @@ export function deltaToMrkdwn(ops: SlackOp[]): string {
   }
 
   function applyMarks(text: string, attrs: OpAttrs): string {
+    if (attrs.slackmention) return text;
+    if (attrs.code) return `\`${text}\``;
+
+    let result: string;
     if (attrs.link) {
-      return text === attrs.link ? attrs.link : `[${text}](${attrs.link})`;
+      result = text === attrs.link ? attrs.link : `[${text}](${attrs.link})`;
+    } else {
+      result = text;
     }
-    if (attrs.slackmention) {
-      return text;
-    }
-    if (attrs.code) {
-      return `\`${text}\``;
-    }
-    let result = text;
     if (attrs.strike) result = `~${result}~`;
     if (attrs.bold) result = `*${result}*`;
     if (attrs.italic) result = `_${result}_`;

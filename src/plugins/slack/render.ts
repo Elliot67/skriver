@@ -42,10 +42,11 @@ interface Ctx {
   ops: SlackOp[];
   warnings: Set<string>;
   options: SlackOptions;
+  blockquoteMode: boolean;
 }
 
 export function renderSlack(ast: Root, options: SlackOptions): RenderResult {
-  const ctx: Ctx = { ops: [], warnings: new Set(), options };
+  const ctx: Ctx = { ops: [], warnings: new Set(), options, blockquoteMode: false };
   const blocks = ast.children;
   blocks.forEach((block, i) => {
     renderBlock(ctx, block);
@@ -133,15 +134,21 @@ function renderListItem(ctx: Ctx, item: ListItem, ordered: boolean, depth: numbe
 }
 
 function renderBlockquote(ctx: Ctx, node: Blockquote): void {
-  node.children.forEach((child, i) => {
-    if (i > 0) appendInsert(ctx, '\n', undefined);
-    if (child.type === 'paragraph') {
-      renderInline(ctx, (child as Paragraph).children, {});
-      pushLine(ctx, { blockquote: true });
-    } else {
-      renderBlock(ctx, child);
-    }
-  });
+  const previous = ctx.blockquoteMode;
+  ctx.blockquoteMode = true;
+  try {
+    node.children.forEach((child, i) => {
+      if (i > 0) pushLine(ctx, { blockquote: true });
+      if (child.type === 'paragraph') {
+        renderInline(ctx, (child as Paragraph).children, {});
+        pushLine(ctx, { blockquote: true });
+      } else {
+        renderBlock(ctx, child);
+      }
+    });
+  } finally {
+    ctx.blockquoteMode = previous;
+  }
 }
 
 function renderCode(ctx: Ctx, node: Code): void {
@@ -231,7 +238,11 @@ function renderInline(ctx: Ctx, nodes: PhrasingContent[], marks: Marks): void {
         renderInline(ctx, (n as Link).children, { ...marks, link: (n as Link).url });
         break;
       case 'break':
-        pushText(ctx, '\n', marks);
+        if (ctx.blockquoteMode) {
+          pushLine(ctx, { blockquote: true });
+        } else {
+          pushText(ctx, '\n', marks);
+        }
         break;
       case 'image': {
         ctx.warnings.add('Images are not supported; emitted as alt text.');
@@ -251,6 +262,15 @@ function renderInline(ctx: Ctx, nodes: PhrasingContent[], marks: Marks): void {
 
 function pushText(ctx: Ctx, text: string, marks: Marks): void {
   if (text === '') return;
+  if (ctx.blockquoteMode && text.includes('\n')) {
+    const parts = text.split('\n');
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i] ?? '';
+      if (part.length > 0) pushText(ctx, part, marks);
+      if (i < parts.length - 1) pushLine(ctx, { blockquote: true });
+    }
+    return;
+  }
   const attributes = marksToAttrs(marks);
   const detect = ctx.options.detectEmoji && !marks.code;
   if (!detect) {
