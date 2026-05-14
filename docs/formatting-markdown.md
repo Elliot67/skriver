@@ -4,6 +4,18 @@ Markdown
 
 ## text/plain
 
+# Title 1
+
+## Title 2
+
+### Title 3
+
+#### Title 4
+
+##### Title 5
+
+###### Title 6
+
 - Hello
   - World
   - Everyone
@@ -41,3 +53,8 @@ And also tables :
 | A simple | 2 by 2         |
 | -------- | -------------- |
 | with     | nice formating |
+
+And even some checkboxes
+
+- [ ] Item to do
+- [x] Item done !
