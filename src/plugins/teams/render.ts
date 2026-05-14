@@ -115,12 +115,17 @@ function renderBlockquote(ctx: Ctx, node: Blockquote): void {
   ctx.out.push('</blockquote>');
 }
 
+// A fenced block with a language hint becomes a Teams CK Editor code block
+// (placeholder <p> + <pre>). Teams discards the language itself on paste, but
+// the presence of `node.lang` is how we know the author meant "code block" vs
+// plain preformatted text — the latter pastes as a bare <pre> with no header.
 function renderCode(ctx: Ctx, node: Code): void {
   if (node.lang) {
-    ctx.out.push(`<pre><code class="language-${escapeAttr(node.lang)}">`);
-  } else {
-    ctx.out.push('<pre><code>');
+    ctx.out.push(
+      '<p itemtype="http://schema.skype.com/CodeBlockEditor">&nbsp;</p>',
+    );
   }
+  ctx.out.push('<pre spellcheck="false"><code>');
   ctx.out.push(escapeText(node.value));
   ctx.out.push('</code></pre>');
 }

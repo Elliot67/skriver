@@ -89,21 +89,30 @@ describe('blockquote', () => {
 });
 
 describe('code block', () => {
-  it('emits <pre><code>', () => {
+  it('emits a bare <pre> when the fence has no language', () => {
     expect(run('```\nline one\nline two\n```').output).toBe(
-      '<pre><code>line one\nline two</code></pre>',
+      '<pre spellcheck="false"><code>line one\nline two</code></pre>',
     );
   });
 
-  it('adds language- class when present', () => {
-    expect(run('```ts\nconst x = 1;\n```').output).toBe(
-      '<pre><code class="language-ts">const x = 1;</code></pre>',
+  it('prepends the CK Editor placeholder when the fence has a language', () => {
+    expect(run('```ts\nconst A  = "hello";\n```').output).toBe(
+      '<p itemtype="http://schema.skype.com/CodeBlockEditor">&nbsp;</p>' +
+        '<pre spellcheck="false"><code>const A  = "hello";</code></pre>',
     );
   });
 
-  it('escapes HTML inside code blocks', () => {
+  it('only places a placeholder before fenced-with-language blocks', () => {
+    const output = run('```\nplain\n```\n\n```ts\ntyped\n```').output;
+    const matches = output.match(
+      /<p itemtype="http:\/\/schema.skype.com\/CodeBlockEditor">/g,
+    );
+    expect(matches).toHaveLength(1);
+  });
+
+  it('escapes HTML inside an unlabelled code block', () => {
     expect(run('```\n<script>alert("x")</script>\n```').output).toBe(
-      '<pre><code>&lt;script&gt;alert("x")&lt;/script&gt;</code></pre>',
+      '<pre spellcheck="false"><code>&lt;script&gt;alert("x")&lt;/script&gt;</code></pre>',
     );
   });
 });
