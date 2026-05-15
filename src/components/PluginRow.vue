@@ -57,9 +57,7 @@ function formatKey(key: string): string {
 </script>
 
 <template>
-  <section
-    class="flex flex-col gap-2 rounded-xl border border-default bg-elevated p-5 shadow-xs"
-  >
+  <section class="flex flex-col gap-2 rounded-xl border border-default p-5 shadow-xs">
     <div class="flex items-center gap-2">
       <UIcon :name="plugin.icon" class="size-5 shrink-0" />
       <span class="grow font-medium">{{ plugin.label }}</span>
@@ -68,17 +66,13 @@ function formatKey(key: string): string {
         <UButton
           icon="i-lucide-settings"
           color="neutral"
-          variant="ghost"
+          variant="soft"
           size="sm"
           :aria-label="`Options for ${plugin.label}`"
         />
         <template #content>
           <div class="flex flex-col gap-2 p-3 min-w-56">
-            <div
-              v-for="key in optionKeys"
-              :key="key"
-              class="flex items-center justify-between gap-3"
-            >
+            <div v-for="key in optionKeys" :key="key" class="flex items-center justify-between gap-3">
               <span class="text-sm">{{ formatKey(key) }}</span>
               <USwitch
                 v-if="typeof options[key] === 'boolean'"
@@ -113,16 +107,10 @@ function formatKey(key: string): string {
         :class="w.severity === 'error' ? 'text-error' : 'text-warning'"
         class="flex items-center gap-1.5"
       >
-        <UIcon
-          :name="w.severity === 'error' ? 'i-lucide-circle-x' : 'i-lucide-triangle-alert'"
-          class="shrink-0"
-        />
+        <UIcon :name="w.severity === 'error' ? 'i-lucide-circle-x' : 'i-lucide-triangle-alert'" class="shrink-0" />
         <span>{{ w.title }}</span>
         <UTooltip :text="w.description" :delay-duration="100">
-          <UIcon
-            name="i-lucide-info"
-            class="shrink-0 opacity-60 hover:opacity-100 cursor-help"
-          />
+          <UIcon name="i-lucide-info" class="shrink-0 opacity-60 hover:opacity-100 cursor-help" />
         </UTooltip>
       </li>
     </ul>

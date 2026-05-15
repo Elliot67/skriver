@@ -3,30 +3,36 @@ import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import PluginRow from '@/components/PluginRow.vue';
 import { plugins } from '@/core/plugin-registry';
 import type { ClientPlugin } from '@/core/plugin';
-import iconUrl from '@/assets/media/icon.svg';
 </script>
 
 <template>
-  <div class="mx-auto flex max-w-6xl flex-col gap-6 p-6">
-    <header class="flex items-center gap-3">
-      <img :src="iconUrl" alt="" aria-hidden="true" class="size-12 shrink-0" />
-      <div class="flex flex-col gap-1">
-        <h1 class="text-2xl font-semibold">Skriver</h1>
+  <div class="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-6">
+    <div class="grid flex-1 grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <MarkdownEditor />
+
+      <aside class="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
         <p class="text-sm text-muted">
           Write once in Markdown, copy formatted for your chat client.
         </p>
-      </div>
-    </header>
 
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <MarkdownEditor />
+        <div class="flex flex-col gap-3">
+          <PluginRow
+            v-for="plugin in plugins"
+            :key="plugin.id"
+            :plugin="plugin as unknown as ClientPlugin<Record<string, unknown>>"
+          />
+        </div>
 
-      <aside class="flex flex-col gap-3 lg:sticky lg:top-6 lg:self-start">
-        <PluginRow
-          v-for="plugin in plugins"
-          :key="plugin.id"
-          :plugin="plugin as unknown as ClientPlugin<Record<string, unknown>>"
-        />
+        <RouterLink
+          to="/debug"
+          class="group inline-flex items-center gap-1.5 text-sm text-muted hover:text-default"
+        >
+          <UIcon
+            name="i-lucide-arrow-right"
+            class="size-4 transition-transform duration-200 group-hover:translate-x-1"
+          />
+          <span>Clipboard Debugger</span>
+        </RouterLink>
       </aside>
     </div>
   </div>

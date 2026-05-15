@@ -34,7 +34,7 @@
   --ui-text: #ffffff;
   --ui-text-highlighted: #ffffff;
   --ui-text-inverted: #ffffff;
-  --ui-bg: var(--color-zinc-950);
+  --ui-bg: var(--color-zinc-900);
   --ui-bg-muted: var(--color-zinc-500);
   --ui-bg-elevated: var(--color-zinc-900);
   --ui-bg-accented: var(--color-zinc-700);
