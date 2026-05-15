@@ -144,9 +144,14 @@ describe('thematic break', () => {
 });
 
 describe('headings', () => {
-  it('maps depth 1..6 to <h1>..<h6>', () => {
-    expect(run('# a').output).toBe('<h1>a</h1>');
-    expect(run('###### f').output).toBe('<h6>f</h6>');
+  it('renders every heading as a font-size:x-large span and warns', () => {
+    const { output, warnings } = run('# Hello\n## World\n### Yes');
+    expect(output).toBe(
+      '<p><span style="font-size:x-large;">Hello</span></p>' +
+        '<p><span style="font-size:x-large;">World</span></p>' +
+        '<p><span style="font-size:x-large;">Yes</span></p>',
+    );
+    expect(warnings).toContain(TEAMS_WARNINGS.HEADING);
   });
 });
 

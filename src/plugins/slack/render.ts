@@ -25,10 +25,10 @@ export const SLACK_WARNINGS = {
       'HTML in the source is rendered as plain text — Slack does not parse HTML in messages.',
     severity: 'warn',
   },
-  HEADING_DEPTH: {
-    title: 'Heading depth clamped',
+  HEADING: {
+    title: 'Headings not supported',
     description:
-      'Slack supports headings up to depth 3. Deeper headings are rendered at depth 3.',
+      'Headings are rendered as bold paragraphs — Slack messages have no heading format.',
     severity: 'warn',
   },
   TABLES: {
@@ -132,10 +132,9 @@ function renderBlock(ctx: Ctx, node: RootContent): void {
 }
 
 function renderHeading(ctx: Ctx, node: Heading): void {
-  renderInline(ctx, node.children, {});
-  const level = Math.min(node.depth, 3);
-  if (node.depth > 3) ctx.warnings.add(SLACK_WARNINGS.HEADING_DEPTH);
-  pushLine(ctx, { header: level });
+  ctx.warnings.add(SLACK_WARNINGS.HEADING);
+  renderInline(ctx, node.children, { bold: true });
+  pushLine(ctx);
 }
 
 function renderList(ctx: Ctx, node: List, depth: number): void {

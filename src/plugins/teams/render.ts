@@ -24,6 +24,12 @@ import type { RenderResult, Warning } from '@/core/plugin';
 export type TeamsOptions = Record<string, never>;
 
 export const TEAMS_WARNINGS = {
+  HEADING: {
+    title: 'Headings not supported',
+    description:
+      'Headings are rendered as large text — Teams messages have no native heading format, and every depth collapses to the same size.',
+    severity: 'warn',
+  },
   TASK_LIST: {
     title: 'Checklists not supported',
     description:
@@ -63,11 +69,14 @@ function renderBlock(ctx: Ctx, node: RootContent): void {
       ctx.out.push('</p>');
       break;
     case 'heading': {
-      const h = node as Heading;
-      const tag = `h${Math.min(Math.max(h.depth, 1), 6)}`;
-      ctx.out.push(`<${tag}>`);
-      renderInline(ctx, h.children);
-      ctx.out.push(`</${tag}>`);
+      // Teams' paste handler remaps <h1>..<h6> to font-size spans inconsistently
+      // (<h1>→x-large, <h2>→default, <h3>→xx-small). Force every level to
+      // x-large so headings stay visually distinct from body text, regardless
+      // of depth.
+      ctx.warnings.add(TEAMS_WARNINGS.HEADING);
+      ctx.out.push('<p><span style="font-size:x-large;">');
+      renderInline(ctx, (node as Heading).children);
+      ctx.out.push('</span></p>');
       break;
     }
     case 'list':

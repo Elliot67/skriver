@@ -219,26 +219,20 @@ describe('thematic break', () => {
 });
 
 describe('headings', () => {
-  it('maps depth 1..3 to header:N', () => {
-    const { ops: h1 } = run('# title');
-    expect(h1).toEqual([
-      { insert: 'title' },
-      { insert: '\n', attributes: { header: 1 } },
+  it('renders any heading as a bold paragraph and warns', () => {
+    const { ops, warnings } = run('# title');
+    expect(ops).toEqual([
+      { insert: 'title', attributes: { bold: true } },
+      { insert: '\n' },
     ]);
-    const { ops: h3 } = run('### title');
-    expect(h3).toEqual([
-      { insert: 'title' },
-      { insert: '\n', attributes: { header: 3 } },
-    ]);
+    expect(warnings).toContain(SLACK_WARNINGS.HEADING);
   });
 
-  it('clamps depth > 3 to header:3 and warns', () => {
-    const { ops, warnings } = run('#### deep');
-    expect(ops).toEqual([
-      { insert: 'deep' },
-      { insert: '\n', attributes: { header: 3 } },
+  it('uses the same fallback for every depth (no header attribute)', () => {
+    expect(run('###### tiny').ops).toEqual([
+      { insert: 'tiny', attributes: { bold: true } },
+      { insert: '\n' },
     ]);
-    expect(warnings).toContain(SLACK_WARNINGS.HEADING_DEPTH);
   });
 });
 
