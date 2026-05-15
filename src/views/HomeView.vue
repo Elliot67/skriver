@@ -11,7 +11,9 @@ import type { ClientPlugin } from '@/core/plugin';
       <MarkdownEditor />
 
       <aside class="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-        <p class="text-sm text-muted">Write once in Markdown, copy formatted for your chat client.</p>
+        <p class="text-sm text-muted">
+          Stop reformatting by hand. Write Markdown, get pre-formatted text for your tools.
+        </p>
 
         <div class="flex flex-col gap-3">
           <PluginRow

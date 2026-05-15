@@ -1,54 +1,19 @@
-# skriver
+<p align="center"><img width="150" src="./src/assets/media/icon.svg" alt="Skriver"></p>
 
-This template should help get you started developing with Vue 3 in Vite.
+<h1 align="center">Skriver</h1>
+<p align="center">Stop reformatting by hand. Write Markdown, get pre-formatted text for your tools.</p>
 
-## Recommended IDE Setup
+Write your message once in Markdown, then copy it pre-formatted for the client you're pasting into. Each target client gets its own paste format, so headings, lists, code blocks, and quotes survive the trip intact.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Supported clients
 
-## Recommended Browser Setup
+- Slack
+- Microsoft Teams
+- Jira
+- Notion
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+## Also included
 
-## Type Support for `.vue` Imports in TS
+### Clipboard debugger
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-pnpm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-pnpm dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-pnpm build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-pnpm test:unit
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-pnpm lint
-```
+A built-in debugger lets you inspect what a client actually puts on the clipboard when you copy from it. Paste into it to see every its content — handy when reverse-engineering a new target.

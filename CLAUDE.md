@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Product
 
-**Skriver** is a markdown-to-multi-client clipboard formatter: the user writes Markdown once and copies it pre-formatted for chat / issue-tracking clients. Plugins ship for **Slack** (`slack/texty` Quill Delta JSON), **Microsoft Teams** (`text/html`) and **Jira** (`text/html`, ProseMirror shape). See `docs/plan.md` for the v1 architecture; `docs/formatting-*.md` document the per-client output shapes.
+**Skriver** is a markdown-to-multi-client clipboard formatter: the user writes Markdown once and copies it pre-formatted for chat / issue-tracking clients. Plugins ship for **Slack** (`slack/texty` Quill Delta JSON), **Microsoft Teams** (`text/html`), **Jira** (`text/html`, ProseMirror shape), and **Notion** (`text/plain`, Notion-flavored markdown). See `docs/plan.md` for the v1 architecture; `docs/formatting-*.md` document the per-client output shapes.
 
 ## Stack
 
