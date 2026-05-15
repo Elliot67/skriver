@@ -30,7 +30,7 @@ const isDebug = computed(() => route.name === 'debug');
           </RouterLink>
           <div class="flex items-center gap-1">
             <UButton
-              to="#"
+              to="https://elliot67.github.io/skriver"
               target="_blank"
               rel="noopener noreferrer"
               icon="i-simple-icons:github"
