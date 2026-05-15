@@ -39,12 +39,9 @@ const taskList = (id: string) =>
 const taskItem = (id: string, state: 'TODO' | 'DONE') =>
   `<div data-task-local-id="${id}" data-task-state="${state}" data-prosemirror-content-type="node" data-prosemirror-node-name="taskItem" data-prosemirror-node-block="true">`;
 
-const PM_STRONG =
-  '<strong data-prosemirror-content-type="mark" data-prosemirror-mark-name="strong">';
-const PM_EM =
-  '<em data-prosemirror-content-type="mark" data-prosemirror-mark-name="em">';
-const PM_STRIKE =
-  '<s data-prosemirror-content-type="mark" data-prosemirror-mark-name="strike">';
+const PM_STRONG = '<strong data-prosemirror-content-type="mark" data-prosemirror-mark-name="strong">';
+const PM_EM = '<em data-prosemirror-content-type="mark" data-prosemirror-mark-name="em">';
+const PM_STRIKE = '<s data-prosemirror-content-type="mark" data-prosemirror-mark-name="strike">';
 const PM_CODE_MARK =
   '<span class="code" spellcheck="false" data-prosemirror-content-type="mark" data-prosemirror-mark-name="code">';
 
@@ -59,15 +56,11 @@ describe('paragraphs and breaks', () => {
   });
 
   it('emits one block per paragraph', () => {
-    expect(run('First.\n\nSecond.').output).toBe(
-      `${PM_P}First.</p>${PM_P}Second.</p>`,
-    );
+    expect(run('First.\n\nSecond.').output).toBe(`${PM_P}First.</p>${PM_P}Second.</p>`);
   });
 
   it('renders a hard break as <br>', () => {
-    expect(run('Line one  \nLine two').output).toBe(
-      `${PM_P}Line one<br>Line two</p>`,
-    );
+    expect(run('Line one  \nLine two').output).toBe(`${PM_P}Line one<br>Line two</p>`);
   });
 });
 
@@ -92,37 +85,27 @@ describe('inline marks', () => {
   });
 
   it('renders inline code as <span class="code"> with code mark attrs', () => {
-    expect(run('an `x` sample').output).toBe(
-      `${PM_P}an ${PM_CODE_MARK}x</span> sample</p>`,
-    );
+    expect(run('an `x` sample').output).toBe(`${PM_P}an ${PM_CODE_MARK}x</span> sample</p>`);
   });
 });
 
 describe('links', () => {
   it('emits <a> with href + link mark attrs', () => {
-    expect(run('[Google](https://google.com)').output).toBe(
-      `${PM_P}${pmLink('https://google.com')}Google</a></p>`,
-    );
+    expect(run('[Google](https://google.com)').output).toBe(`${PM_P}${pmLink('https://google.com')}Google</a></p>`);
   });
 
   it('escapes the href attribute', () => {
-    expect(run('[x](https://e.com/?a=1&b=2)').output).toBe(
-      `${PM_P}${pmLink('https://e.com/?a=1&amp;b=2')}x</a></p>`,
-    );
+    expect(run('[x](https://e.com/?a=1&b=2)').output).toBe(`${PM_P}${pmLink('https://e.com/?a=1&amp;b=2')}x</a></p>`);
   });
 });
 
 describe('lists', () => {
   it('emits a bullet list with ak-ul and per-item <p> wrapping', () => {
-    expect(run('- one\n- two').output).toBe(
-      `${PM_UL}${PM_LI}${PM_P}one</p></li>${PM_LI}${PM_P}two</p></li></ul>`,
-    );
+    expect(run('- one\n- two').output).toBe(`${PM_UL}${PM_LI}${PM_P}one</p></li>${PM_LI}${PM_P}two</p></li></ul>`);
   });
 
   it('emits an ordered list with start="1" and ak-ol', () => {
-    expect(run('1. one\n2. two').output).toBe(
-      `${PM_OL}${PM_LI}${PM_P}one</p></li>${PM_LI}${PM_P}two</p></li></ol>`,
-    );
+    expect(run('1. one\n2. two').output).toBe(`${PM_OL}${PM_LI}${PM_P}one</p></li>${PM_LI}${PM_P}two</p></li></ol>`);
   });
 
   it('nests a child <ul> inside the parent <li> after its <p>', () => {
@@ -152,9 +135,7 @@ describe('task lists (GFM)', () => {
 
   it('falls back to a regular list and warns when items are mixed', () => {
     const { output, warnings } = run('- [ ] task\n- regular');
-    expect(output).toBe(
-      `${PM_UL}${PM_LI}${PM_P}task</p></li>${PM_LI}${PM_P}regular</p></li></ul>`,
-    );
+    expect(output).toBe(`${PM_UL}${PM_LI}${PM_P}task</p></li>${PM_LI}${PM_P}regular</p></li></ul>`);
     expect(warnings).toContain(JIRA_WARNINGS.MIXED_TASK_LIST);
   });
 });

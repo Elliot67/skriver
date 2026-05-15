@@ -83,12 +83,9 @@ function openTaskItem(id: string, state: 'TODO' | 'DONE'): string {
   return `<div data-task-local-id="${id}" data-task-state="${state}" data-prosemirror-content-type="node" data-prosemirror-node-name="taskItem" data-prosemirror-node-block="true">`;
 }
 
-const OPEN_STRONG =
-  '<strong data-prosemirror-content-type="mark" data-prosemirror-mark-name="strong">';
-const OPEN_EM =
-  '<em data-prosemirror-content-type="mark" data-prosemirror-mark-name="em">';
-const OPEN_STRIKE =
-  '<s data-prosemirror-content-type="mark" data-prosemirror-mark-name="strike">';
+const OPEN_STRONG = '<strong data-prosemirror-content-type="mark" data-prosemirror-mark-name="strong">';
+const OPEN_EM = '<em data-prosemirror-content-type="mark" data-prosemirror-mark-name="em">';
+const OPEN_STRIKE = '<s data-prosemirror-content-type="mark" data-prosemirror-mark-name="strike">';
 const OPEN_CODE_MARK =
   '<span class="code" spellcheck="false" data-prosemirror-content-type="mark" data-prosemirror-mark-name="code">';
 
@@ -327,16 +324,9 @@ function renderInline(ctx: Ctx, nodes: PhrasingContent[]): void {
 }
 
 function escapeText(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function escapeAttr(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }

@@ -38,29 +38,17 @@ describe('paragraphs and breaks', () => {
 describe('inline marks', () => {
   it('applies bold', () => {
     const { ops } = run('I am **bold**.');
-    expect(ops).toEqual([
-      { insert: 'I am ' },
-      { insert: 'bold', attributes: { bold: true } },
-      { insert: '.\n' },
-    ]);
+    expect(ops).toEqual([{ insert: 'I am ' }, { insert: 'bold', attributes: { bold: true } }, { insert: '.\n' }]);
   });
 
   it('applies italic', () => {
     const { ops } = run('I am _italic_.');
-    expect(ops).toEqual([
-      { insert: 'I am ' },
-      { insert: 'italic', attributes: { italic: true } },
-      { insert: '.\n' },
-    ]);
+    expect(ops).toEqual([{ insert: 'I am ' }, { insert: 'italic', attributes: { italic: true } }, { insert: '.\n' }]);
   });
 
   it('applies strike from GFM ~~text~~', () => {
     const { ops } = run('I am ~~striked~~.');
-    expect(ops).toEqual([
-      { insert: 'I am ' },
-      { insert: 'striked', attributes: { strike: true } },
-      { insert: '.\n' },
-    ]);
+    expect(ops).toEqual([{ insert: 'I am ' }, { insert: 'striked', attributes: { strike: true } }, { insert: '.\n' }]);
   });
 
   it('applies inline code', () => {
@@ -74,10 +62,7 @@ describe('inline marks', () => {
 
   it('combines nested marks', () => {
     const { ops } = run('**_both_**');
-    expect(ops).toEqual([
-      { insert: 'both', attributes: { bold: true, italic: true } },
-      { insert: '\n' },
-    ]);
+    expect(ops).toEqual([{ insert: 'both', attributes: { bold: true, italic: true } }, { insert: '\n' }]);
   });
 });
 
@@ -181,10 +166,7 @@ describe('task lists (GFM)', () => {
 describe('blockquote', () => {
   it('emits blockquote:true on the terminator', () => {
     const { ops } = run('> quoted line');
-    expect(ops).toEqual([
-      { insert: 'quoted line' },
-      { insert: '\n', attributes: { blockquote: true } },
-    ]);
+    expect(ops).toEqual([{ insert: 'quoted line' }, { insert: '\n', attributes: { blockquote: true } }]);
   });
 
   it('attributes every line of a multi-line blockquote', () => {
@@ -221,18 +203,12 @@ describe('thematic break', () => {
 describe('headings', () => {
   it('renders any heading as a bold paragraph and warns', () => {
     const { ops, warnings } = run('# title');
-    expect(ops).toEqual([
-      { insert: 'title', attributes: { bold: true } },
-      { insert: '\n' },
-    ]);
+    expect(ops).toEqual([{ insert: 'title', attributes: { bold: true } }, { insert: '\n' }]);
     expect(warnings).toContain(SLACK_WARNINGS.HEADING);
   });
 
   it('uses the same fallback for every depth (no header attribute)', () => {
-    expect(run('###### tiny').ops).toEqual([
-      { insert: 'tiny', attributes: { bold: true } },
-      { insert: '\n' },
-    ]);
+    expect(run('###### tiny').ops).toEqual([{ insert: 'tiny', attributes: { bold: true } }, { insert: '\n' }]);
   });
 });
 
@@ -290,29 +266,19 @@ describe('emoji shortcodes', () => {
 
   it('keeps :shortcode: inside inline code under the code attribute (Slack skips it)', () => {
     const { ops } = run('use `:smile:` here');
-    expect(ops).toEqual([
-      { insert: 'use ' },
-      { insert: ':smile:', attributes: { code: true } },
-      { insert: ' here\n' },
-    ]);
+    expect(ops).toEqual([{ insert: 'use ' }, { insert: ':smile:', attributes: { code: true } }, { insert: ' here\n' }]);
   });
 
   it('keeps :shortcode: inside a fenced code block under code-block (Slack skips it)', () => {
     const { ops } = run('```\n:smile:\n```');
-    expect(ops).toEqual([
-      { insert: ':smile:' },
-      { insert: '\n', attributes: { 'code-block': true } },
-    ]);
+    expect(ops).toEqual([{ insert: ':smile:' }, { insert: '\n', attributes: { 'code-block': true } }]);
   });
 });
 
 describe('multi-block separation', () => {
   it('inserts a blank-line newline between paragraph and list', () => {
     const { ops } = run('A paragraph.\n\n- item');
-    expect(ops).toEqual([
-      { insert: 'A paragraph.\n\nitem' },
-      { insert: '\n', attributes: { list: 'bullet' } },
-    ]);
+    expect(ops).toEqual([{ insert: 'A paragraph.\n\nitem' }, { insert: '\n', attributes: { list: 'bullet' } }]);
   });
 });
 

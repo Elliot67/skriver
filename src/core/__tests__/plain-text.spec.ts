@@ -22,9 +22,7 @@ describe('mdastToPlainText', () => {
   });
 
   it('strips inline formatting marks but keeps text', () => {
-    expect(pt('I am **bold** and _italic_ and ~~struck~~.')).toBe(
-      'I am bold and italic and struck.',
-    );
+    expect(pt('I am **bold** and _italic_ and ~~struck~~.')).toBe('I am bold and italic and struck.');
   });
 
   it('keeps inline code content', () => {
@@ -40,9 +38,7 @@ describe('mdastToPlainText', () => {
   });
 
   it('renders nested list items inline with their parent list', () => {
-    expect(pt('- Hello\n- How are you?\n  - Doing?')).toBe(
-      'Hello\nHow are you?\nDoing?',
-    );
+    expect(pt('- Hello\n- How are you?\n  - Doing?')).toBe('Hello\nHow are you?\nDoing?');
   });
 
   it('renders ordered list items as plain lines', () => {

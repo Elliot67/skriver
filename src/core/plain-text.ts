@@ -58,9 +58,7 @@ function listText(node: List): string {
 }
 
 function tableText(node: Table): string {
-  return node.children
-    .map((row) => row.children.map((cell) => inlineText(cell.children)).join(' | '))
-    .join('\n');
+  return node.children.map((row) => row.children.map((cell) => inlineText(cell.children)).join(' | ')).join('\n');
 }
 
 function inlineText(nodes: PhrasingContent[]): string {

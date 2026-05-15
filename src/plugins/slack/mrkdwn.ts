@@ -113,8 +113,7 @@ export function deltaToMrkdwn(ops: SlackOp[]): string {
     }
 
     const isBlockTerminator =
-      insert === '\n' &&
-      (attrs.list || attrs.blockquote || attrs['code-block'] || attrs.header);
+      insert === '\n' && (attrs.list || attrs.blockquote || attrs['code-block'] || attrs.header);
 
     if (isBlockTerminator) {
       if (attrs['code-block']) flushCodeBlockLine();

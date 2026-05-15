@@ -11,11 +11,7 @@ export interface PasteEntry {
   binary: boolean;
 }
 
-export async function writeForPlugin(
-  plugin: ClientPlugin,
-  payload: string,
-  plainText?: string,
-): Promise<void> {
+export async function writeForPlugin(plugin: ClientPlugin, payload: string, plainText?: string): Promise<void> {
   await writeViaCopyEvent(plugin.mimeType, payload, plainText);
 }
 
@@ -24,11 +20,7 @@ export async function writeForPlugin(
 // apps don't read). Slack reads the raw `slack/texty` from the OS clipboard, so
 // the only working channel is the legacy `copy` event — synchronous setData on
 // any MIME type, same mechanism Slack's own web client uses.
-export function writeViaCopyEvent(
-  mimeType: string,
-  payload: string,
-  plainText?: string,
-): Promise<void> {
+export function writeViaCopyEvent(mimeType: string, payload: string, plainText?: string): Promise<void> {
   return dispatchSyntheticCopy((clipboardData) => {
     clipboardData.setData(mimeType, payload);
     if (plainText !== undefined && mimeType !== 'text/plain') {
@@ -56,9 +48,7 @@ export function readPasteEvent(event: ClipboardEvent): PasteEntry[] {
   return entries;
 }
 
-function dispatchSyntheticCopy(
-  applyData: (clipboardData: DataTransfer) => void,
-): Promise<void> {
+function dispatchSyntheticCopy(applyData: (clipboardData: DataTransfer) => void): Promise<void> {
   return new Promise((resolve, reject) => {
     const helper = document.createElement('textarea');
     helper.value = ' ';

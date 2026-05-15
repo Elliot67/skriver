@@ -134,9 +134,7 @@ describe('readPasteEvent', () => {
   }
 
   it('returns one entry per type with payloads', () => {
-    const result = readPasteEvent(
-      makePasteEvent({ 'slack/texty': '{"ops":[]}', 'text/plain': 'hi' }),
-    );
+    const result = readPasteEvent(makePasteEvent({ 'slack/texty': '{"ops":[]}', 'text/plain': 'hi' }));
     expect(result).toEqual([
       { mimeType: 'slack/texty', payload: '{"ops":[]}', binary: false },
       { mimeType: 'text/plain', payload: 'hi', binary: false },
@@ -144,9 +142,7 @@ describe('readPasteEvent', () => {
   });
 
   it('flags empty payloads as binary', () => {
-    const result = readPasteEvent(
-      makePasteEvent({ 'image/png': '', 'text/plain': 'caption' }),
-    );
+    const result = readPasteEvent(makePasteEvent({ 'image/png': '', 'text/plain': 'caption' }));
     expect(result).toEqual([
       { mimeType: 'image/png', payload: '', binary: true },
       { mimeType: 'text/plain', payload: 'caption', binary: false },

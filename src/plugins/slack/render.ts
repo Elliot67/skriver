@@ -21,14 +21,12 @@ import { deltaToMrkdwn } from './mrkdwn';
 export const SLACK_WARNINGS = {
   HTML: {
     title: 'Raw HTML dropped',
-    description:
-      'HTML in the source is rendered as plain text — Slack does not parse HTML in messages.',
+    description: 'HTML in the source is rendered as plain text — Slack does not parse HTML in messages.',
     severity: 'warn',
   },
   HEADING: {
     title: 'Headings not supported',
-    description:
-      'Headings are rendered as bold paragraphs — Slack messages have no heading format.',
+    description: 'Headings are rendered as bold paragraphs — Slack messages have no heading format.',
     severity: 'warn',
   },
   TABLES: {
@@ -44,8 +42,7 @@ export const SLACK_WARNINGS = {
   },
   TASK_LIST: {
     title: 'Checklists not supported',
-    description:
-      'Task list items are rendered as bullets prefixed with ☐ (unchecked) or ✓ (checked).',
+    description: 'Task list items are rendered as bullets prefixed with ☐ (unchecked) or ✓ (checked).',
     severity: 'warn',
   },
   UNSUPPORTED: {
@@ -204,9 +201,7 @@ const TABLE_ALIGN_MAX_WIDTH = 80;
 
 function renderTable(ctx: Ctx, node: Table): void {
   ctx.warnings.add(SLACK_WARNINGS.TABLES);
-  const rows = node.children.map((row) =>
-    row.children.map((cell) => inlineToPlainText(cell.children)),
-  );
+  const rows = node.children.map((row) => row.children.map((cell) => inlineToPlainText(cell.children)));
   const numCols = rows.reduce((max, r) => Math.max(max, r.length), 0);
   const colWidths: number[] = [];
   for (let c = 0; c < numCols; c++) {
@@ -217,17 +212,14 @@ function renderTable(ctx: Ctx, node: Table): void {
     }
     colWidths.push(max);
   }
-  const alignedWidth =
-    colWidths.reduce((s, w) => s + w, 0) + Math.max(0, numCols - 1) * 3;
+  const alignedWidth = colWidths.reduce((s, w) => s + w, 0) + Math.max(0, numCols - 1) * 3;
   const shouldAlign = alignedWidth <= TABLE_ALIGN_MAX_WIDTH;
 
   for (const row of rows) {
     const cells: string[] = [];
     for (let c = 0; c < numCols; c++) {
       const cell = row[c] ?? '';
-      cells.push(
-        shouldAlign && c < numCols - 1 ? cell.padEnd(colWidths[c] ?? 0) : cell,
-      );
+      cells.push(shouldAlign && c < numCols - 1 ? cell.padEnd(colWidths[c] ?? 0) : cell);
     }
     const line = cells.join(' | ');
     if (line.length > 0) appendInsert(ctx, line, undefined);
@@ -315,11 +307,7 @@ function pushText(ctx: Ctx, text: string, marks: Marks): void {
   appendInsert(ctx, text, marksToAttrs(marks));
 }
 
-function appendInsert(
-  ctx: Ctx,
-  text: string,
-  attributes: Record<string, unknown> | undefined,
-): void {
+function appendInsert(ctx: Ctx, text: string, attributes: Record<string, unknown> | undefined): void {
   const last = ctx.ops[ctx.ops.length - 1];
   if (last && typeof last.insert === 'string' && attrsEqual(last.attributes, attributes)) {
     last.insert += text;
@@ -364,10 +352,7 @@ function marksToAttrs(marks: Marks): Record<string, unknown> | undefined {
   return any ? out : undefined;
 }
 
-function attrsEqual(
-  a: Record<string, unknown> | undefined,
-  b: Record<string, unknown> | undefined,
-): boolean {
+function attrsEqual(a: Record<string, unknown> | undefined, b: Record<string, unknown> | undefined): boolean {
   if (a === b) return true;
   if (!a || !b) return false;
   const ak = Object.keys(a);

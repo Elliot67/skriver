@@ -36,9 +36,7 @@ describe('inline marks', () => {
   });
 
   it('renders inline code as <code>', () => {
-    expect(run('an `inline code` sample').output).toBe(
-      '<p>an <code>inline code</code> sample</p>',
-    );
+    expect(run('an `inline code` sample').output).toBe('<p>an <code>inline code</code> sample</p>');
   });
 
   it('nests marks', () => {
@@ -48,21 +46,15 @@ describe('inline marks', () => {
 
 describe('links and images', () => {
   it('renders a link with href', () => {
-    expect(run('[Google](https://google.com)').output).toBe(
-      '<p><a href="https://google.com">Google</a></p>',
-    );
+    expect(run('[Google](https://google.com)').output).toBe('<p><a href="https://google.com">Google</a></p>');
   });
 
   it('escapes the href attribute', () => {
-    expect(run('[x](https://e.com/?a=1&b=2)').output).toBe(
-      '<p><a href="https://e.com/?a=1&amp;b=2">x</a></p>',
-    );
+    expect(run('[x](https://e.com/?a=1&b=2)').output).toBe('<p><a href="https://e.com/?a=1&amp;b=2">x</a></p>');
   });
 
   it('renders an image with src and alt', () => {
-    expect(run('![logo](https://x/y.png)').output).toBe(
-      '<p><img src="https://x/y.png" alt="logo"></p>',
-    );
+    expect(run('![logo](https://x/y.png)').output).toBe('<p><img src="https://x/y.png" alt="logo"></p>');
   });
 });
 
@@ -72,9 +64,7 @@ describe('lists', () => {
   });
 
   it('nests <ul> inside <li>', () => {
-    expect(run('- top\n  - nested\n- root').output).toBe(
-      '<ul><li>top<ul><li>nested</li></ul></li><li>root</li></ul>',
-    );
+    expect(run('- top\n  - nested\n- root').output).toBe('<ul><li>top<ul><li>nested</li></ul></li><li>root</li></ul>');
   });
 
   it('emits <ol> for ordered lists', () => {
@@ -124,9 +114,7 @@ describe('code block', () => {
 
   it('only places a placeholder before fenced-with-language blocks', () => {
     const output = run('```\nplain\n```\n\n```ts\ntyped\n```').output;
-    const matches = output.match(
-      /<p itemtype="http:\/\/schema.skype.com\/CodeBlockEditor">/g,
-    );
+    const matches = output.match(/<p itemtype="http:\/\/schema.skype.com\/CodeBlockEditor">/g);
     expect(matches).toHaveLength(1);
   });
 
@@ -159,8 +147,7 @@ describe('tables', () => {
   it('emits <table><thead>/<tbody> with <th> and <td>', () => {
     const md = '| a | b |\n| - | - |\n| 1 | 2 |';
     expect(run(md).output).toBe(
-      '<table><thead><tr><th>a</th><th>b</th></tr></thead>' +
-        '<tbody><tr><td>1</td><td>2</td></tr></tbody></table>',
+      '<table><thead><tr><th>a</th><th>b</th></tr></thead>' + '<tbody><tr><td>1</td><td>2</td></tr></tbody></table>',
     );
   });
 });

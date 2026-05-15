@@ -9,33 +9,22 @@ function text(value: string): Text {
 
 describe('splitInlineByNewlines', () => {
   it('returns a single group when there are no newlines', () => {
-    expect(splitInlineByNewlines([text('one'), text(' two')])).toEqual([
-      [text('one'), text(' two')],
-    ]);
+    expect(splitInlineByNewlines([text('one'), text(' two')])).toEqual([[text('one'), text(' two')]]);
   });
 
   it('splits a text node at every soft newline', () => {
-    expect(splitInlineByNewlines([text('a\nb\nc')])).toEqual([
-      [text('a')],
-      [text('b')],
-      [text('c')],
-    ]);
+    expect(splitInlineByNewlines([text('a\nb\nc')])).toEqual([[text('a')], [text('b')], [text('c')]]);
   });
 
   it('treats a break node as a split point', () => {
-    expect(
-      splitInlineByNewlines([
-        text('one'),
-        { type: 'break' },
-        text('two'),
-      ] as PhrasingContent[]),
-    ).toEqual([[text('one')], [text('two')]]);
+    expect(splitInlineByNewlines([text('one'), { type: 'break' }, text('two')] as PhrasingContent[])).toEqual([
+      [text('one')],
+      [text('two')],
+    ]);
   });
 
   it('re-wraps marks across a split so each line keeps the formatting', () => {
-    const input: PhrasingContent[] = [
-      { type: 'strong', children: [text('bold one\nbold two')] },
-    ];
+    const input: PhrasingContent[] = [{ type: 'strong', children: [text('bold one\nbold two')] }];
     expect(splitInlineByNewlines(input)).toEqual([
       [{ type: 'strong', children: [text('bold one')] }],
       [{ type: 'strong', children: [text('bold two')] }],
@@ -43,10 +32,6 @@ describe('splitInlineByNewlines', () => {
   });
 
   it('drops empty segments produced by consecutive newlines', () => {
-    expect(splitInlineByNewlines([text('a\n\nb')])).toEqual([
-      [text('a')],
-      [],
-      [text('b')],
-    ]);
+    expect(splitInlineByNewlines([text('a\n\nb')])).toEqual([[text('a')], [], [text('b')]]);
   });
 });

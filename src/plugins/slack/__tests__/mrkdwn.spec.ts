@@ -60,10 +60,7 @@ const tests: { name: string; input: { ops: SlackOp[] }; expected: string }[] = [
   {
     name: 'named link (text differs from URL)',
     input: {
-      ops: [
-        { insert: 'Check out ' },
-        { attributes: { link: 'https://example.com' }, insert: 'Example Site' },
-      ],
+      ops: [{ insert: 'Check out ' }, { attributes: { link: 'https://example.com' }, insert: 'Example Site' }],
     },
     expected: 'Check out [Example Site](https://example.com)',
   },
@@ -286,11 +283,7 @@ const tests: { name: string; input: { ops: SlackOp[] }; expected: string }[] = [
   {
     name: 'paragraph followed by list',
     input: {
-      ops: [
-        { insert: 'intro\n' },
-        { insert: 'item' },
-        { insert: '\n', attributes: { list: 'bullet' } },
-      ],
+      ops: [{ insert: 'intro\n' }, { insert: 'item' }, { insert: '\n', attributes: { list: 'bullet' } }],
     },
     expected: 'intro\n- item',
   },
@@ -328,10 +321,7 @@ const tests: { name: string; input: { ops: SlackOp[] }; expected: string }[] = [
   {
     name: 'bold around a link',
     input: {
-      ops: [
-        { insert: 'click', attributes: { bold: true, link: 'https://example.com' } },
-        { insert: '\n' },
-      ],
+      ops: [{ insert: 'click', attributes: { bold: true, link: 'https://example.com' } }, { insert: '\n' }],
     },
     expected: '*[click](https://example.com)*',
   },

@@ -8,9 +8,7 @@ import type { PhrasingContent, Text } from 'mdast';
 // Used by HTML renderers (Teams, Jira) inside blockquotes, where markdown
 // parses `> a\n> b` as one paragraph with a soft break — but the target
 // editors render each line as its own <p>.
-export function splitInlineByNewlines(
-  nodes: PhrasingContent[],
-): PhrasingContent[][] {
+export function splitInlineByNewlines(nodes: PhrasingContent[]): PhrasingContent[][] {
   const lines: PhrasingContent[][] = [[]];
   const push = (node: PhrasingContent): void => {
     lines[lines.length - 1]!.push(node);
@@ -38,12 +36,7 @@ export function splitInlineByNewlines(
       }
       return;
     }
-    if (
-      node.type === 'strong' ||
-      node.type === 'emphasis' ||
-      node.type === 'delete' ||
-      node.type === 'link'
-    ) {
+    if (node.type === 'strong' || node.type === 'emphasis' || node.type === 'delete' || node.type === 'link') {
       const childLines = splitInlineByNewlines(node.children);
       childLines.forEach((line, i) => {
         if (i > 0) newline();

@@ -14,8 +14,7 @@ describe('renderNotion', () => {
   });
 
   it('preserves GFM features (task lists, tables, strikethrough) verbatim', () => {
-    const md =
-      '- [ ] todo\n- [x] done\n\n| a | b |\n| - | - |\n| 1 | 2 |\n\n~~struck~~';
+    const md = '- [ ] todo\n- [x] done\n\n| a | b |\n| - | - |\n| 1 | 2 |\n\n~~struck~~';
     expect(run(md).output).toBe(md);
   });
 

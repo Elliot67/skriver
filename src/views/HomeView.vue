@@ -11,9 +11,7 @@ import type { ClientPlugin } from '@/core/plugin';
       <MarkdownEditor />
 
       <aside class="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-        <p class="text-sm text-muted">
-          Write once in Markdown, copy formatted for your chat client.
-        </p>
+        <p class="text-sm text-muted">Write once in Markdown, copy formatted for your chat client.</p>
 
         <div class="flex flex-col gap-3">
           <PluginRow
@@ -23,10 +21,7 @@ import type { ClientPlugin } from '@/core/plugin';
           />
         </div>
 
-        <RouterLink
-          to="/debug"
-          class="group inline-flex items-center gap-1.5 text-sm text-muted hover:text-default"
-        >
+        <RouterLink to="/debug" class="group inline-flex items-center gap-1.5 text-sm text-muted hover:text-default">
           <UIcon
             name="i-lucide-arrow-right"
             class="size-4 transition-transform duration-200 group-hover:translate-x-1"

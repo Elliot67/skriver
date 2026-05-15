@@ -32,8 +32,7 @@ export const TEAMS_WARNINGS = {
   },
   TASK_LIST: {
     title: 'Checklists not supported',
-    description:
-      'Task list items are rendered as bullets prefixed with ☐ (unchecked) or ✓ (checked).',
+    description: 'Task list items are rendered as bullets prefixed with ☐ (unchecked) or ✓ (checked).',
     severity: 'warn',
   },
   UNSUPPORTED: {
@@ -159,9 +158,7 @@ function renderBlockquote(ctx: Ctx, node: Blockquote): void {
 // plain preformatted text — the latter pastes as a bare <pre> with no header.
 function renderCode(ctx: Ctx, node: Code): void {
   if (node.lang) {
-    ctx.out.push(
-      '<p itemtype="http://schema.skype.com/CodeBlockEditor">&nbsp;</p>',
-    );
+    ctx.out.push('<p itemtype="http://schema.skype.com/CodeBlockEditor">&nbsp;</p>');
   }
   ctx.out.push('<pre spellcheck="false"><code>');
   ctx.out.push(escapeText(node.value));
@@ -252,16 +249,9 @@ function renderInline(ctx: Ctx, nodes: PhrasingContent[]): void {
 }
 
 function escapeText(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function escapeAttr(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
