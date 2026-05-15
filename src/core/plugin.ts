@@ -23,5 +23,7 @@ export interface ClientPlugin<TOptions extends object = object> {
   icon: string;
   mimeType: string;
   defaultOptions: TOptions;
-  render(ast: Root, options: TOptions): RenderResult;
+  // `source` is the raw markdown the AST was parsed from. Most plugins ignore
+  // it and render from the AST
+  render(ast: Root, options: TOptions, source?: string): RenderResult;
 }

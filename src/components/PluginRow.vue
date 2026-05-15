@@ -24,7 +24,7 @@ async function copy(): Promise<void> {
   copying.value = true;
   try {
     const ast = parse(store.markdown);
-    const result = props.plugin.render(ast, options.value);
+    const result = props.plugin.render(ast, options.value, store.markdown);
     store.setLastWarnings(pluginId.value, result.warnings);
     await writeForPlugin(props.plugin, result.output, result.plainText);
     toast.add({
