@@ -113,7 +113,7 @@ async function saveAll(): Promise<void> {
       <div
         v-for="entry in entries"
         :key="entry.id"
-        class="flex bg-elevated/75 w-[40%] shrink-0 flex-col gap-3 rounded-xl border border-default p-5 shadow-xs lg:w-96"
+        class="flex bg-elevated/75 w-[40%] min-w-[250px] shrink-0 flex-col gap-3 rounded-xl border border-default p-5 shadow-xs lg:w-96"
       >
         <div class="flex flex-col gap-1.5">
           <div class="flex items-center justify-between">
