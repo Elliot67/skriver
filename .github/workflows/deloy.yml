@@ -30,8 +30,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Lint check
+        run: |
+          pnpm exec oxlint .
+          pnpm exec eslint .
+
+      - name: Format check
+        run: pnpm exec prettier --check --experimental-cli src/
+
       - name: Type check
         run: pnpm type-check
+
+      - name: Unit tests
+        run: pnpm test:unit --run
 
       - name: Build
         run: pnpm build-only --base=/${{ github.event.repository.name }}/
